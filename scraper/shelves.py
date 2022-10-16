@@ -38,6 +38,14 @@ def get_id(book_row):
     return title_href.attrs.get("href").split("/")[-1]
 
 
+def get_isbn(book_row):
+    return (
+        book_row.find("td", {"class": "field isbn13"})
+        .find("div", {"class": "value"})
+        .text.strip()
+    )
+
+
 def get_rating(book_row):
     cell = book_row.find("td", {"class": "field rating"})
     str_rating = cell.find("div", {"class": "value"}).find("span").attrs.get("title")
@@ -112,6 +120,7 @@ def get_shelf(args: Namespace, shelf: str):
                 else:
                     book = {}
 
+                book["isbn"] = get_isbn(book_row)
                 book["rating"] = get_rating(book_row)
 
                 review = get_review(book_row)

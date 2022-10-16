@@ -87,13 +87,6 @@ def get_id(book_id):
     return pattern.search(book_id).group()
 
 
-def get_isbn(soup):
-    try:
-        return int(soup.find("span", {"itemprop": "isbn"}).text.strip())
-    except AttributeError:
-        return None
-
-
 def get_image(soup):
     try:
         return (soup.find("img", {"id": "coverImage"}).attrs.get("src"),)
@@ -109,7 +102,6 @@ def scrape_book(book_id: str, args: Namespace):
     book = {
         "book_id_title": book_id,
         "book_id": get_id(book_id),
-        "book_isbn": get_isbn(soup),
         "book_title": " ".join(soup.find("h1", {"id": "bookTitle"}).text.split()),
         "book_description": get_description(soup),
         "book_url": url,
