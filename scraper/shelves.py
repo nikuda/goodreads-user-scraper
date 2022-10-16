@@ -57,6 +57,11 @@ def get_dates_read(book_row):
     return date_arr
 
 
+def get_date_added(book_row):
+    cell = book_row.find("td", {"class": "field date_added"})
+    return cell.find("div", {"class": "value"}).text.strip()
+
+
 def get_shelf(args: Namespace, shelf: str):
     print("Scraping '" + shelf + "' shelf...")
     user_id: str = args.user_id
@@ -94,6 +99,7 @@ def get_shelf(args: Namespace, shelf: str):
             else:
                 book = books.scrape_book(book_id, args)
                 book["rating"] = get_rating(book_row)
+                book["date_added"] = get_date_added(book_row)
                 book["dates_read"] = get_dates_read(book_row)
                 book["shelves"] = [shelf]
                 print("🎉 Scraped " + book_id)
