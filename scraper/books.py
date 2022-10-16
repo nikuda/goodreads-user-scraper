@@ -54,18 +54,19 @@ def get_rating_distribution(soup):
 
 
 def get_num_pages(soup):
-    if soup.find("span", {"itemprop": "numberOfPages"}):
+    try:
         num_pages = soup.find("span", {"itemprop": "numberOfPages"}).text.strip()
         return int(num_pages.split()[0])
-    return ""
+    except AttributeError:
+        return ""
 
 
 def get_year_first_published(soup):
-    year_first_published = soup.find("nobr", attrs={"class": "greyText"})
-    if year_first_published:
+    try:
+        year_first_published = soup.find("nobr", attrs={"class": "greyText"})
         year_first_published = year_first_published.string
         return re.search("([0-9]{3,4})", year_first_published).group(1)
-    else:
+    except AttributeError:
         return None
 
 
@@ -75,12 +76,29 @@ def get_author_id(soup):
 
 
 def get_description(soup):
-    return soup.find("div", {"id": "description"}).findAll("span")[-1].text
+    try:
+        return soup.find("div", {"id": "description"}).findAll("span")[-1].text
+    except AttributeError:
+        return None
 
 
 def get_id(book_id):
     pattern = re.compile("([^.-]+)")
     return pattern.search(book_id).group()
+
+
+def get_isbn(soup):
+    try:
+        return int(soup.find("span", {"itemprop": "isbn"}).text.strip())
+    except AttributeError:
+        return None
+
+
+def get_image(soup):
+    try:
+        return (soup.find("img", {"id": "coverImage"}).attrs.get("src"),)
+    except AttributeError:
+        return None
 
 
 def scrape_book(book_id: str, args: Namespace):
@@ -91,10 +109,11 @@ def scrape_book(book_id: str, args: Namespace):
     book = {
         "book_id_title": book_id,
         "book_id": get_id(book_id),
+        "book_isbn": get_isbn(soup),
         "book_title": " ".join(soup.find("h1", {"id": "bookTitle"}).text.split()),
         "book_description": get_description(soup),
         "book_url": url,
-        "book_image": soup.find("img", {"id": "coverImage"}).attrs.get("src"),
+        "book_image": get_image(soup),
         "book_series": get_series_name(soup),
         "book_series_uri": get_series_uri(soup),
         "year_first_published": get_year_first_published(soup),
