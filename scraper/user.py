@@ -35,10 +35,11 @@ def get_user_info(args: Namespace):
     url = "https://www.goodreads.com/user/show/" + user_id
     source = urlopen(url)
     soup = BeautifulSoup(source, "html.parser")
+    user_name = get_user_name(soup)
 
     data = {
         "user_id": user_id,
-        "user_name": get_user_name(soup),
+        "user_name": user_name,
         "num_ratings": get_num_ratings(soup),
         "average_rating": get_avg_rating(soup),
         "num_reviews": get_num_reviews(soup),
@@ -48,7 +49,7 @@ def get_user_info(args: Namespace):
     json.dump(data, file, indent=2)
     file.close()
 
-    print("👤 Scraped user")
+    print("👤 Scraped user " + user_name)
 
     if not args.skip_shelves:
         print()
