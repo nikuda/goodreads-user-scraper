@@ -44,6 +44,16 @@ def get_rating(book_row):
     return RATING_STARS_DICT.get(str_rating)
 
 
+def get_review(book_row):
+    cell = book_row.find("td", {"class": "field review"})
+    str_review = cell.find("span", id=re.compile("^freeTextreview"))
+
+    if str_review:
+        return str_review.text.strip()
+    else:
+        return None
+
+
 def get_dates_read(book_row):
     cell = book_row.find("td", {"class": "field date_read"})
     dates = cell.find("div", {"class": "value"}).findChildren(
@@ -99,9 +109,15 @@ def get_shelf(args: Namespace, shelf: str):
             else:
                 book = books.scrape_book(book_id, args)
                 book["rating"] = get_rating(book_row)
+
+                review = get_review(book_row)
+                if review:
+                    book["review"] = review
+
                 book["date_added"] = get_date_added(book_row)
                 book["dates_read"] = get_dates_read(book_row)
                 book["shelves"] = [shelf]
+
                 print("🎉 Scraped " + book_id)
                 changed = True
 
